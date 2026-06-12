@@ -2,7 +2,7 @@
 
 **Typerpunk** is a fast-paced, cyberpunk-themed arcade typing game that tests your speed, focus, and reflexes. Battle against endless waves of cyber-drones, unleash tactical energy beams from your visor, and climb the ranks to achieve the ultimate high score!
 
-## Key Features
+## 🚀 Key Features
 
 * **Dynamic Difficulty:** Enemy speed increases progressively as your score climbs, keeping the intensity high.
 * **Adaptive Obstacles:** Cyber-drones automatically resize their chassis to perfectly frame the word currently displayed.

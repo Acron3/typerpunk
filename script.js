@@ -2,6 +2,27 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 let wordBuffer = [];
+let gameState = "START"; // ['START','PLAYING']
+let highScore = localStorage.getItem("highScore") || 0;
+let stars = [];
+for (let i = 0; i < 30; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1,
+        speed: Math.random() * 2 + 1,
+    });
+}
+
+let score;
+let gameOver;
+let startTime;
+let totalCorrectLetters;
+let currentWPM;
+let baseSpeed;
+let player;
+let obstacle;
+let laser;
 
 async function fetchWords() {
     try {
@@ -29,45 +50,6 @@ async function fetchWords() {
     }
 }
 
-fetchWords();
-
-let score = 0;
-let gameOver = false;
-let highScore = localStorage.getItem("highScore") || 0;
-
-let startTime = null;
-let totalCorrectLetters = 0;
-let currentWPM = 0;
-
-let baseSpeed = 3;
-
-let player = {
-    x: 100,
-    y: 200,
-    width: 50,
-    height: 50,
-};
-
-let obstacle = {
-    x: canvas.width,
-    y: 200,
-    width: 120,
-    height: 50,
-    speed: baseSpeed,
-    word: "",
-    targetIndex: 0,
-};
-
-let laser = {
-    active: false,
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
-    startTime: 0,
-    duration: 200,
-};
-
 function spawnObstacle() {
     if (wordBuffer.length === 0) {
         fetchWords();
@@ -87,14 +69,13 @@ function spawnObstacle() {
     if (obstacle.speed >= 5) obstacle.speed = 5; // LIMIT SPEED
 }
 
-spawnObstacle();
-
 window.addEventListener("keydown", (e) => {
-    if (gameOver && e.key === " ") {
-        window.location.reload();
+    if (e.code === "Space" && (gameState === "START" || gameOver)) {
+        initGame();
+        gameState = "PLAYING";
     }
 
-    if (gameOver) return;
+    if (gameOver || gameState === "START") return;
 
     if (startTime === null) {
         startTime = Date.now();
@@ -129,13 +110,53 @@ window.addEventListener("keydown", (e) => {
         }
     } else {
         if (e.key.length === 1) {
-            obstacle.targetIndex = 0; 
+            obstacle.targetIndex = 0;
         }
     }
 });
 
+function initGame() {
+    score = 0;
+    gameOver = false;
+
+    startTime = null;
+    totalCorrectLetters = 0;
+    currentWPM = 0;
+
+    baseSpeed = 3;
+
+    player = {
+        x: 100,
+        y: 200,
+        width: 50,
+        height: 50,
+    };
+
+    obstacle = {
+        x: canvas.width,
+        y: 200,
+        width: 120,
+        height: 50,
+        speed: baseSpeed,
+        word: "",
+        targetIndex: 0,
+    };
+
+    laser = {
+        active: false,
+        startX: 0,
+        startY: 0,
+        endX: 0,
+        endY: 0,
+        startTime: 0,
+        duration: 200,
+    };
+
+    spawnObstacle();
+}
+
 function update() {
-    if (gameOver) return;
+    if (gameOver || gameState === "START") return;
 
     obstacle.x -= obstacle.speed;
 
@@ -146,7 +167,7 @@ function update() {
             currentWPM = Math.round(totalCorrectLetters / 5 / timeElapsedInMinutes);
         }
     }
-    // UPDATE ANIMASI
+
     if (laser.active) {
         if (Date.now() - laser.startTime > laser.duration) {
             laser.active = false;
@@ -156,16 +177,6 @@ function update() {
     if (obstacle.x <= player.x + player.width) {
         gameOver = true;
     }
-}
-
-let stars = [];
-for (let i = 0; i < 30; i++) {
-    stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 2 + 1,
-        speed: Math.random() * 2 + 1,
-    });
 }
 
 function render() {
@@ -236,6 +247,34 @@ function render() {
             canvas.height / 2 + 80,
         );
         ctx.shadowBlur = 0;
+        return;
+    }
+
+    if (gameState === "START") {
+        ctx.save();
+
+        // Backdrop hitam transparan yang ngasih ilusi blur/dim ke background
+        ctx.fillStyle = "rgba(15, 20, 30, 0.85)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Render Judul Typerpunk
+        ctx.font = "bold 60px monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#00ffcc";
+        ctx.shadowColor = "#00ffcc";
+        ctx.shadowBlur = 20;
+        ctx.fillText("TYPERPUNK", canvas.width / 2, canvas.height / 2 - 20);
+
+        // Render teks PRESS SPACE dengan efek pulsing (kedap-kedip) pakai trigonometri
+        ctx.font = "20px monospace";
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#ffffff";
+        ctx.globalAlpha = Math.abs(Math.sin(Date.now() / 400)); // Bikin efek kedip mulus
+        ctx.fillText("PRESS SPACE TO START", canvas.width / 2, canvas.height / 2 + 40);
+
+        ctx.restore();
+
+        // Hentikan eksekusi render lainnya (seperti player dan musuh) sampai state berubah
         return;
     }
 
@@ -359,4 +398,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+//MAIN
+initGame();
+fetchWords();
 gameLoop();
