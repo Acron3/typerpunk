@@ -24,10 +24,17 @@ let player;
 let obstacle;
 let laser;
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }   
+
 async function fetchWords() {
     try {
+        const url = "https://random-word-api.herokuapp.com/word"
+        const numOfWords = 50;
+        const wordLength = getRandomInt(3,6);
         const response = await fetch(
-            "https://random-words-api.kushcreates.com/api?language=en&words=50",
+            `${url}?number=${numOfWords}&length=${wordLength}`,
         );
         const data = await response.json();
         wordBuffer = data.map((word) => word.word.toUpperCase());
