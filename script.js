@@ -31,13 +31,13 @@ function getRandomInt(min, max) {
 async function fetchWords() {
     try {
         const url = "https://random-word-api.herokuapp.com/word"
-        const numOfWords = 50;
+        const numOfWords = 5;
         const wordLength = getRandomInt(3,6);
         const response = await fetch(
             `${url}?number=${numOfWords}&length=${wordLength}`,
         );
         const data = await response.json();
-        wordBuffer = data.map((word) => word.word.toUpperCase());
+        wordBuffer = data.map((word) => word.toUpperCase());
         wordBuffer = wordBuffer.filter((w) => !w.includes(" "));
         console.log("Kata baru berhasil di-fetch!");
     } catch (err) {
