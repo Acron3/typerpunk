@@ -16,7 +16,7 @@
 * **HTML5 Canvas API:** High-performance rendering for smooth 60 FPS gameplay.
 * **JavaScript (ES6+):** Robust game engine logic with asynchronous data handling.
 * **CSS3:** Minimalist, neon-infused UI design.
-* **Word Data:** Powered by [Random Words API](https://random-words-api.kushcreates.com/api).
+* **Word Data:** Powered by [Random Words API](https://random-word-api.herokuapp.com/home) by [RazorSh4rk](https://github.com/RazorSh4rk).
 
 <!-- 
 ## 🎮 How to Play
